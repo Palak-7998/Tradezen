@@ -1,18 +1,29 @@
 require("dotenv").config();
-const express=require("express");
-const mongoose=require("mongoose");
-const url=process.env.MONGO_URL;
-const PORT=process.env.PORT||3002;
-const app=express();
+const express = require("express");
+const mongoose = require("mongoose");
+
+const app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT || 3002;
+const MONGO_URI = process.env.MONGO_URI;
+
+// test route
 app.get("/test", (req, res) => {
-    res.send("TradeZen backend is working");
+  res.send("TradeZen backend is working");
 });
 
-app.listen(3002,()=>{
-    console.log("App is started");
-    mongoose.connect(url,()=>{
-        console.log("connected");
-    })
-})
+// connect to MongoDB FIRST
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+
+    // start server ONLY after DB connects
+    app.listen(PORT, () => {
+      console.log(`App is started on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
